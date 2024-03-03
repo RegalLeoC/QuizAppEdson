@@ -8,6 +8,25 @@
     android:gravity="center_vertical"
     tools:context=".Juego">
 
+    <ImageView
+        android:id="@+id/topicImageView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/history_image" />
+
+
+    <TextView
+        android:id="@+id/questionTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:text="Question Text Goes Here" />
+
+
     <LinearLayout
         android:id="@+id/buttonContainer"
         android:layout_width="match_parent"
