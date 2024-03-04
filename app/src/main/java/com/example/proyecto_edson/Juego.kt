@@ -31,12 +31,10 @@ class Juego : AppCompatActivity() {
     private var wrongAnswerIndexes = mutableListOf<Int>()
     private var correctAnswerIndex = -1
 
-    // Information from the first activity
     private val difficulty: String? by lazy {
         intent.getStringExtra("difficulty")
     }
 
-    // Main
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_juego)
@@ -71,7 +69,6 @@ class Juego : AppCompatActivity() {
         questionAnsweredMap = mutableMapOf()
         userAnswersMap = mutableMapOf()
 
-        // Initialize the maps with default values
         for (i in 0 until questions.size) {
             questionAnsweredMap[i] = false
             userAnswersMap[i] = null
@@ -110,7 +107,6 @@ class Juego : AppCompatActivity() {
         val options = mutableListOf<String>()
         options.add(question.correctAnswer)
 
-        // Adjust the number of wrong answers based on the difficulty level
         val numWrongAnswers = when (difficulty) {
             "Fácil" -> 1
             "Normal" -> 2
@@ -122,7 +118,6 @@ class Juego : AppCompatActivity() {
         return options.shuffled()
     }
 
-    // Buttons
     private fun createChoices(options: List<String>) {
         buttonContainer.removeAllViews()
         val isAnswered = questionAnsweredMap[currentQuestionIndex] ?: false
@@ -202,10 +197,12 @@ class Juego : AppCompatActivity() {
             if (wrongAnswerIndexes.size == 1) {
                 val buttonToTurnBlue = buttonContainer.getChildAt(wrongAnswerIndexes[0]) as? Button
                 buttonToTurnBlue?.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+                userAnswersMap[currentQuestionIndex] = buttonToTurnBlue?.text.toString()
 
                 val buttonToTurnGreen = buttonContainer.getChildAt(correctAnswerIndex) as? Button
                 buttonToTurnGreen?.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
                 buttonToTurnGreen?.isEnabled = false
+                userAnswersMap[currentQuestionIndex] = buttonToTurnGreen?.text.toString()
 
                 disableButtons()
             } else {
@@ -215,6 +212,7 @@ class Juego : AppCompatActivity() {
                 val buttonToTurnBlue = buttonContainer.getChildAt(indexToTurnBlue) as? Button
                 buttonToTurnBlue?.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
                 buttonToTurnBlue?.isEnabled = false
+                userAnswersMap[currentQuestionIndex] = buttonToTurnBlue?.text.toString()
 
                 // Remove the index from the list to avoid turning it blue again
                 wrongAnswerIndexes.removeAt(randomIndex)
@@ -238,7 +236,6 @@ class Juego : AppCompatActivity() {
     }
 }
 
-// Enum to represent different topics
 enum class Topics(val questions: List<Question>, val imageResourceId: Int) {
     MATHEMATICS(listOf(
         Question("2 + 2 = ?", "4", listOf("3", "5", "6")),
