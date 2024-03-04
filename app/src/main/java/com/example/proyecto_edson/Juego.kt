@@ -6,7 +6,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 
 class Juego : AppCompatActivity() {
 
@@ -14,6 +13,8 @@ class Juego : AppCompatActivity() {
     private lateinit var questionTextView: TextView
     private lateinit var topicImageView: ImageView
     private lateinit var questionNumberTextView: TextView
+    private lateinit var hintTextView: TextView
+    private lateinit var hintButton: Button
 
     private lateinit var topics: Array<Topics>
     private var currentQuestionIndex: Int = 0
@@ -22,6 +23,9 @@ class Juego : AppCompatActivity() {
     private var questionOptionsMap: MutableMap<Int, List<String>> = mutableMapOf()
     private var questionAnsweredMap: MutableMap<Int, Boolean> = mutableMapOf()
     private var userAnswersMap: MutableMap<Int, String?> = mutableMapOf()
+
+    private var hintCount: Int = 5
+    private var consecutiveCorrectAnswers: Int = 0
 
     // Information from the first activity
     private val difficulty: String? by lazy {
@@ -33,10 +37,14 @@ class Juego : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_juego)
 
-        buttonContainer = findViewById<LinearLayout>(R.id.buttonContainer)
-        questionTextView = findViewById<TextView>(R.id.questionTextView)
-        topicImageView = findViewById<ImageView>(R.id.topicImageView)
-        questionNumberTextView = findViewById<TextView>(R.id.questionNumberTextView)
+        buttonContainer = findViewById(R.id.buttonContainer)
+        questionTextView = findViewById(R.id.questionTextView)
+        topicImageView = findViewById(R.id.topicImageView)
+        questionNumberTextView = findViewById(R.id.questionNumberTextView)
+        hintTextView = findViewById(R.id.hintTextView)
+        hintButton = findViewById(R.id.hintButton)
+
+        hintTextView.text = hintCount.toString()
 
         topics = Topics.values()
 
@@ -51,6 +59,10 @@ class Juego : AppCompatActivity() {
             previousQuestion()
         }
 
+        hintButton.setOnClickListener {
+            useHint()
+        }
+
         questionOptionsMap = mutableMapOf()
         questionAnsweredMap = mutableMapOf()
         userAnswersMap = mutableMapOf()
@@ -60,10 +72,7 @@ class Juego : AppCompatActivity() {
             questionAnsweredMap[i] = false
             userAnswersMap[i] = null
         }
-
-        //createChoices(buttonContainer, questionTextView, topicImageView)
     }
-
 
     private fun selectRandomQuestions() {
         val allQuestions = topics.flatMap { it.questions }.toMutableList()
@@ -88,11 +97,9 @@ class Juego : AppCompatActivity() {
         if (questionOptionsMap[currentQuestionIndex] == null) {
             val options = generateQuestionsOptions(currentQuestion)
             questionOptionsMap[currentQuestionIndex] = options
-            //createChoices(options)
         }
 
         createChoices(questionOptionsMap[currentQuestionIndex]!!)
-
     }
 
     private fun generateQuestionsOptions(question: Question): List<String> {
@@ -109,12 +116,10 @@ class Juego : AppCompatActivity() {
 
         options.addAll(question.wrongAnswers.shuffled().take(numWrongAnswers))
         return options.shuffled()
-
     }
 
     // Buttons
     private fun createChoices(options: List<String>) {
-        // Select a random question from a random topic
         buttonContainer.removeAllViews()
         val isAnswered = questionAnsweredMap[currentQuestionIndex] ?: false
 
@@ -132,12 +137,15 @@ class Juego : AppCompatActivity() {
                 }
             }
 
-
             button.setOnClickListener {
                 if (!isAnswered) {
                     val correctAnswer = questions[currentQuestionIndex].correctAnswer
                     if (option == correctAnswer) {
                         button.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                        consecutiveCorrectAnswers++
+                        if (consecutiveCorrectAnswers % 2 == 0) {
+                            addHint()
+                        }
                     } else {
                         button.setBackgroundColor(resources.getColor(android.R.color.holo_red_light))
                         for (i in 0 until buttonContainer.childCount) {
@@ -147,18 +155,18 @@ class Juego : AppCompatActivity() {
                                 break
                             }
                         }
+                        consecutiveCorrectAnswers = 0
                     }
+
                     questionAnsweredMap[currentQuestionIndex] = true
                     userAnswersMap[currentQuestionIndex] = option
                     disableButtons()
                 }
             }
-            button.isEnabled = !isAnswered  // Use the initialized value of isAnswered
+            button.isEnabled = !isAnswered
             buttonContainer.addView(button)
-
         }
     }
-
 
     private fun disableButtons() {
         for (i in 0 until buttonContainer.childCount) {
@@ -169,28 +177,51 @@ class Juego : AppCompatActivity() {
         }
     }
 
-    // Check answer function
-    private fun checkAnswer(selectedAnswer: String, correctAnswer: String) {
-        // Here you can implement the logic to check the selected answer against the correct answer
-        // For example:
-        if (selectedAnswer == correctAnswer) {
-            Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(
-                this,
-                "Incorrect. The correct answer is: $correctAnswer",
-                Toast.LENGTH_SHORT
-            ).show()
+    private fun useHint() {
+        if (hintCount > 0) {
+            hintCount--
+            hintTextView.text = hintCount.toString()
+            val currentQuestion = questions[currentQuestionIndex]
+            val correctAnswer = currentQuestion.correctAnswer
+            var options = questionOptionsMap[currentQuestionIndex] ?: return
+
+            if (options.size == 2) {
+                for (i in options.indices) {
+                    val button = buttonContainer.getChildAt(i) as? Button
+                    button?.isEnabled = false
+                    if (options[i] == correctAnswer) {
+                        button?.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                    } else {
+                        button?.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+                    }
+                }
+            } else {
+                var randomIndex = (0 until options.size).random()
+                var disabledOption = options[randomIndex]
+                while (disabledOption == correctAnswer || userAnswersMap[currentQuestionIndex] == disabledOption) {
+                    randomIndex = (0 until options.size).random()
+                    disabledOption = options[randomIndex]
+                }
+                userAnswersMap[currentQuestionIndex] = disabledOption
+                val button = buttonContainer.getChildAt(randomIndex) as? Button
+                button?.apply {
+                    setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+                    isEnabled = false
+                }
+            }
         }
     }
 
+    private fun addHint() {
+        hintCount++
+        hintTextView.text = hintCount.toString()
+    }
 
     private fun nextQuestion() {
         currentQuestionIndex = (currentQuestionIndex + 1) % questions.size
         updateQuestion()
     }
 
-    // Function to move to the previous question
     private fun previousQuestion() {
         currentQuestionIndex = (currentQuestionIndex - 1 + questions.size) % questions.size
         updateQuestion()
