@@ -10,6 +10,17 @@ import android.widget.Toast
 
 class Juego : AppCompatActivity() {
 
+    private lateinit var buttonContainer: LinearLayout
+    private lateinit var questionTextView: TextView
+    private lateinit var topicImageView: ImageView
+    private lateinit var questionNumberTextView: TextView
+
+    private lateinit var topics: Array<Topics>
+    private var currentQuestionIndex: Int = 0
+    private lateinit var questions: List<Question>
+
+    private val questionOptionsMap: MutableMap<Int, List<String>> = mutableMapOf()
+
     // Information from the first activity
     private val difficulty: String? by lazy {
         intent.getStringExtra("difficulty")
@@ -20,23 +31,60 @@ class Juego : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_juego)
 
-        val buttonContainer = findViewById<LinearLayout>(R.id.buttonContainer)
-        val questionTextView = findViewById<TextView>(R.id.questionTextView)
-        val topicImageView = findViewById<ImageView>(R.id.topicImageView)
+        buttonContainer = findViewById<LinearLayout>(R.id.buttonContainer)
+        questionTextView = findViewById<TextView>(R.id.questionTextView)
+        topicImageView = findViewById<ImageView>(R.id.topicImageView)
+        questionNumberTextView = findViewById<TextView>(R.id.questionNumberTextView)
 
-        createChoices(buttonContainer, questionTextView, topicImageView)
+        topics = Topics.values()
+
+        selectRandomQuestions()
+        updateQuestion()
+
+        findViewById<Button>(R.id.nextButton).setOnClickListener {
+            nextQuestion()
+        }
+
+        findViewById<Button>(R.id.prevButton).setOnClickListener {
+            previousQuestion()
+        }
+
+        //createChoices(buttonContainer, questionTextView, topicImageView)
     }
 
-    // Buttons
-    private fun createChoices(container: LinearLayout, questionTextView: TextView, topicImageView: ImageView) {
-        // Select a random question from a random topic
 
-        val currentTopic = Topics.values().random()
+    private fun selectRandomQuestions() {
+        val allQuestions = topics.flatMap { it.questions }.toMutableList()
+        questions = mutableListOf()
 
+        repeat(10) {
+            val randomQuestion = allQuestions.random()
+            (questions as MutableList<Question>).add(randomQuestion)
+            allQuestions.removeAll { it == randomQuestion }
+        }
+    }
+
+    private fun updateQuestion() {
+        val currentQuestion = questions[currentQuestionIndex]
+        val currentTopic = topics.find { it.questions.contains(currentQuestion) } ?: Topics.MATHEMATICS
         topicImageView.setImageResource(currentTopic.imageResourceId)
+        questionTextView.text = currentQuestion.text
 
-        val randomQuestionIndex = (0 until currentTopic.questions.size).random()
-        val question = currentTopic.questions[randomQuestionIndex]
+        val questionNumberText = "${currentQuestionIndex + 1}/${questions.size}"
+        questionNumberTextView.text = questionNumberText
+
+        if (questionOptionsMap[currentQuestionIndex] == null) {
+            val options = generateQuestionsOptions(currentQuestion)
+            questionOptionsMap[currentQuestionIndex] = options
+            createChoices(options)
+        } else {
+            createChoices(questionOptionsMap[currentQuestionIndex]!!)
+        }
+    }
+
+    private fun generateQuestionsOptions(question: Question): List<String> {
+        val options = mutableListOf<String>()
+        options.add(question.correctAnswer)
 
         // Adjust the number of wrong answers based on the difficulty level
         val numWrongAnswers = when (difficulty) {
@@ -46,24 +94,26 @@ class Juego : AppCompatActivity() {
             else -> 1
         }
 
-
-        questionTextView.text = question.text
-
-
-        // Creation of buttons
-        val options = mutableListOf<String>()
-        options.add(question.correctAnswer)
         options.addAll(question.wrongAnswers.shuffled().take(numWrongAnswers))
+        return options.shuffled()
 
-        options.shuffle()
+    }
+
+    // Buttons
+    private fun createChoices(options: List<String>) {
+        // Select a random question from a random topic
+
+        buttonContainer.removeAllViews()
         for (option in options) {
             val button = Button(this)
             button.text = option
             button.setOnClickListener {
                 // Here you can handle the click event, such as checking the answer
-                checkAnswer(option, question.correctAnswer)
+                checkAnswer(option, questions[currentQuestionIndex].correctAnswer)
             }
-            container.addView(button)
+
+            buttonContainer.addView(button)
+
         }
     }
 
@@ -74,10 +124,27 @@ class Juego : AppCompatActivity() {
         if (selectedAnswer == correctAnswer) {
             Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "Incorrect. The correct answer is: $correctAnswer", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Incorrect. The correct answer is: $correctAnswer",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
+
+
+    private fun nextQuestion() {
+        currentQuestionIndex = (currentQuestionIndex + 1) % questions.size
+        updateQuestion()
+    }
+
+    // Function to move to the previous question
+    private fun previousQuestion() {
+        currentQuestionIndex = (currentQuestionIndex - 1 + questions.size) % questions.size
+        updateQuestion()
+    }
 }
+
 
 // Enum to represent different topics
 enum class Topics(val questions: List<Question>, val imageResourceId: Int) {
@@ -105,7 +172,7 @@ enum class Topics(val questions: List<Question>, val imageResourceId: Int) {
     GEOGRAPHY(listOf(
         Question("Which country is the Amazon forest in?", "Brazil", listOf("Peru", "Colombia", "Venezuela")),
         Question("Which is the highest mountain?", "Mount Everest", listOf("K2", "Kangchenjunga", "Lhotse")),
-        Question("Which state doesn't exist in Mexico?", "Baja California", listOf("Yucatan", "Quintana Roo", "Sonora")),
+        Question("Which state doesn't exist in Mexico?", "Tlaxcala", listOf("Yucatan", "Quintana Roo", "Sonora")),
         Question("Which country does the Nile River exist in?", "Egypt", listOf("Sudan", "Ethiopia", "Uganda")),
         Question("Which state is the Popocatepetl in?", "Puebla", listOf("Mexico City", "Morelos", "Tlaxcala"))
     ), R.drawable.geography_image)

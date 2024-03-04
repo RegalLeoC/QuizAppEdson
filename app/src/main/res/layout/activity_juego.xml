@@ -8,6 +8,19 @@
     android:gravity="center_vertical"
     tools:context=".Juego">
 
+
+    <TextView
+        android:id="@+id/questionNumberTextView"
+        android:layout_width="379dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
+        android:text="1/10"
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
+
     <ImageView
         android:id="@+id/topicImageView"
         android:layout_width="match_parent"
@@ -32,6 +45,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"/>
+
+    <LinearLayout
+        android:id="@+id/navigationButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/prevButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="50dp"
+            android:text="Previous" />
+
+        <Button
+            android:id="@+id/nextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:text="Next" />
+
+
+    </LinearLayout>
 
 
 </LinearLayout>
