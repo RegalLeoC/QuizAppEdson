@@ -1,5 +1,6 @@
 package com.example.proyecto_edson
 
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -26,6 +27,9 @@ class Juego : AppCompatActivity() {
 
     private var hintCount: Int = 5
     private var consecutiveCorrectAnswers: Int = 0
+
+    private var wrongAnswerIndexes = mutableListOf<Int>()
+    private var correctAnswerIndex = -1
 
     // Information from the first activity
     private val difficulty: String? by lazy {
@@ -182,32 +186,38 @@ class Juego : AppCompatActivity() {
             hintCount--
             hintTextView.text = hintCount.toString()
             val currentQuestion = questions[currentQuestionIndex]
-            val correctAnswer = currentQuestion.correctAnswer
-            var options = questionOptionsMap[currentQuestionIndex] ?: return
 
-            if (options.size == 2) {
-                for (i in options.indices) {
-                    val button = buttonContainer.getChildAt(i) as? Button
-                    button?.isEnabled = false
-                    if (options[i] == correctAnswer) {
-                        button?.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+            // Get indexes of wrong answers and correct answer
+            if (wrongAnswerIndexes.isEmpty()) {
+                questionOptionsMap[currentQuestionIndex]?.forEachIndexed { index, option ->
+                    if (option == currentQuestion.correctAnswer) {
+                        correctAnswerIndex = index
                     } else {
-                        button?.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+                        wrongAnswerIndexes.add(index)
                     }
                 }
+            }
+
+            // If there's only one wrong answer left, turn it blue and the correct answer green
+            if (wrongAnswerIndexes.size == 1) {
+                val buttonToTurnBlue = buttonContainer.getChildAt(wrongAnswerIndexes[0]) as? Button
+                buttonToTurnBlue?.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+
+                val buttonToTurnGreen = buttonContainer.getChildAt(correctAnswerIndex) as? Button
+                buttonToTurnGreen?.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                buttonToTurnGreen?.isEnabled = false
+
+                disableButtons()
             } else {
-                var randomIndex = (0 until options.size).random()
-                var disabledOption = options[randomIndex]
-                while (disabledOption == correctAnswer || userAnswersMap[currentQuestionIndex] == disabledOption) {
-                    randomIndex = (0 until options.size).random()
-                    disabledOption = options[randomIndex]
-                }
-                userAnswersMap[currentQuestionIndex] = disabledOption
-                val button = buttonContainer.getChildAt(randomIndex) as? Button
-                button?.apply {
-                    setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
-                    isEnabled = false
-                }
+                // Pick a random wrong answer index to turn blue
+                val randomIndex = (0 until wrongAnswerIndexes.size).random()
+                val indexToTurnBlue = wrongAnswerIndexes[randomIndex]
+                val buttonToTurnBlue = buttonContainer.getChildAt(indexToTurnBlue) as? Button
+                buttonToTurnBlue?.setBackgroundColor(resources.getColor(android.R.color.holo_blue_light))
+                buttonToTurnBlue?.isEnabled = false
+
+                // Remove the index from the list to avoid turning it blue again
+                wrongAnswerIndexes.removeAt(randomIndex)
             }
         }
     }
