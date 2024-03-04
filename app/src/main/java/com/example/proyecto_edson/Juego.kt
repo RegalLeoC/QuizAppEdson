@@ -19,7 +19,9 @@ class Juego : AppCompatActivity() {
     private var currentQuestionIndex: Int = 0
     private lateinit var questions: List<Question>
 
-    private val questionOptionsMap: MutableMap<Int, List<String>> = mutableMapOf()
+    private var questionOptionsMap: MutableMap<Int, List<String>> = mutableMapOf()
+    private var questionAnsweredMap: MutableMap<Int, Boolean> = mutableMapOf()
+    private var userAnswersMap: MutableMap<Int, String?> = mutableMapOf()
 
     // Information from the first activity
     private val difficulty: String? by lazy {
@@ -49,6 +51,16 @@ class Juego : AppCompatActivity() {
             previousQuestion()
         }
 
+        questionOptionsMap = mutableMapOf()
+        questionAnsweredMap = mutableMapOf()
+        userAnswersMap = mutableMapOf()
+
+        // Initialize the maps with default values
+        for (i in 0 until questions.size) {
+            questionAnsweredMap[i] = false
+            userAnswersMap[i] = null
+        }
+
         //createChoices(buttonContainer, questionTextView, topicImageView)
     }
 
@@ -76,10 +88,11 @@ class Juego : AppCompatActivity() {
         if (questionOptionsMap[currentQuestionIndex] == null) {
             val options = generateQuestionsOptions(currentQuestion)
             questionOptionsMap[currentQuestionIndex] = options
-            createChoices(options)
-        } else {
-            createChoices(questionOptionsMap[currentQuestionIndex]!!)
+            //createChoices(options)
         }
+
+        createChoices(questionOptionsMap[currentQuestionIndex]!!)
+
     }
 
     private fun generateQuestionsOptions(question: Question): List<String> {
@@ -102,18 +115,57 @@ class Juego : AppCompatActivity() {
     // Buttons
     private fun createChoices(options: List<String>) {
         // Select a random question from a random topic
-
         buttonContainer.removeAllViews()
+        val isAnswered = questionAnsweredMap[currentQuestionIndex] ?: false
+
         for (option in options) {
             val button = Button(this)
             button.text = option
-            button.setOnClickListener {
-                // Here you can handle the click event, such as checking the answer
-                checkAnswer(option, questions[currentQuestionIndex].correctAnswer)
+            val isSelected = userAnswersMap[currentQuestionIndex] == option
+
+            if (isAnswered) {
+                val correctAnswer = questions[currentQuestionIndex].correctAnswer
+                if (option == correctAnswer) {
+                    button.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                } else if (isSelected) {
+                    button.setBackgroundColor(resources.getColor(android.R.color.holo_red_light))
+                }
             }
 
+
+            button.setOnClickListener {
+                if (!isAnswered) {
+                    val correctAnswer = questions[currentQuestionIndex].correctAnswer
+                    if (option == correctAnswer) {
+                        button.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                    } else {
+                        button.setBackgroundColor(resources.getColor(android.R.color.holo_red_light))
+                        for (i in 0 until buttonContainer.childCount) {
+                            val child = buttonContainer.getChildAt(i)
+                            if (child is Button && child.text == correctAnswer) {
+                                child.setBackgroundColor(resources.getColor(android.R.color.holo_green_light))
+                                break
+                            }
+                        }
+                    }
+                    questionAnsweredMap[currentQuestionIndex] = true
+                    userAnswersMap[currentQuestionIndex] = option
+                    disableButtons()
+                }
+            }
+            button.isEnabled = !isAnswered  // Use the initialized value of isAnswered
             buttonContainer.addView(button)
 
+        }
+    }
+
+
+    private fun disableButtons() {
+        for (i in 0 until buttonContainer.childCount) {
+            val child = buttonContainer.getChildAt(i)
+            if (child is Button) {
+                child.isEnabled = false
+            }
         }
     }
 
@@ -144,7 +196,6 @@ class Juego : AppCompatActivity() {
         updateQuestion()
     }
 }
-
 
 // Enum to represent different topics
 enum class Topics(val questions: List<Question>, val imageResourceId: Int) {
