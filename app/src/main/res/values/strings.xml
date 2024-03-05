@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Proyecto_Edson</string>
+    <string name="resultados">RESULTADOS</string>
+    <string name="puntaje_final">Puntaje Final</string>
+    <string name="regresar">REGRESAR</string>
+    <string name="bonificacion_por_pista_no_utilizada">Bonificacion por pista no utilizada</string>
+    <string name="penalizacion_por_pista">Penalizacion por pista:</string>
+    <string name="puntacion_por_pregunta">Puntacion por pregunta:</string>
 </resources>
