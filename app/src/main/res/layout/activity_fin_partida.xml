@@ -33,7 +33,7 @@
 
 
             <ImageView
-                android:id="@+id/logoImageView"
+                android:id="@+id/logoImageResult"
                 android:layout_width="173dp"
                 android:layout_height="180dp"
                 android:src="@drawable/img"
@@ -65,6 +65,7 @@
                     android:textSize="20sp"></TextView>
 
                 <TextView
+                    android:id="@+id/textViewResultFin"
                     android:gravity="center_vertical"
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
@@ -82,6 +83,7 @@
                 >
 
                 <TextView
+                    android:id="@+id/textViewQuestion"
                     android:layout_width="160dp"
                     android:layout_height="wrap_content"
                     android:text="@string/puntacion_por_pregunta"
@@ -89,6 +91,7 @@
                     android:textSize="12sp"></TextView>
 
                 <TextView
+                    android:id="@+id/textViewQuest"
                     android:layout_width="40dp"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
@@ -111,6 +114,7 @@
                     android:textSize="12sp"></TextView>
 
                 <TextView
+                    android:id="@+id/textViewHist"
                     android:layout_width="40dp"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
@@ -134,6 +138,7 @@
                     android:textSize="12sp"></TextView>
 
                 <TextView
+                    android:id="@+id/textViewBonf"
                     android:layout_width="40dp"
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
