@@ -71,7 +71,7 @@
                     android:layout_height="match_parent"
                     android:text="0"
                     android:textAlignment="center"
-                    android:textSize="12sp"></TextView>
+                    android:textSize="20sp"></TextView>
             </LinearLayout>
 
 

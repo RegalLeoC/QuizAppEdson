@@ -1,5 +1,8 @@
 package com.example.proyecto_edson
 
+import android.util.Log
+
+import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -226,6 +229,14 @@ class Juego : AppCompatActivity() {
     }
 
     private fun nextQuestion() {
+        //
+        Log.d("NextQuestion", "currentQuestionIndex: $currentQuestionIndex")
+        if(currentQuestionIndex == 9)
+        {
+            Log.d("NextQuestion", "currentQuestionIndex is 10")
+            viewResults()
+        }
+        //
         currentQuestionIndex = (currentQuestionIndex + 1) % questions.size
         updateQuestion()
     }
@@ -233,7 +244,27 @@ class Juego : AppCompatActivity() {
     private fun previousQuestion() {
         currentQuestionIndex = (currentQuestionIndex - 1 + questions.size) % questions.size
         updateQuestion()
+
     }
+
+
+    //Prueba para ver resultados
+    //
+    private fun viewResults()
+    {
+        val intent = Intent(this, FinPartida::class.java)
+        //Datos de Prueba
+
+        intent.putExtra("valueQuestion", 15)
+        intent.putExtra("valueBonf", 2)
+        intent.putExtra("valueHis", -5)
+        //Datos de Prueba
+        startActivity(intent)
+
+    }
+
+    //
+    //Prueba para ver resultados
 }
 
 enum class Topics(val questions: List<Question>, val imageResourceId: Int) {
