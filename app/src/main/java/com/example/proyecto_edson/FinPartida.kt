@@ -3,6 +3,7 @@ package com.example.proyecto_edson
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -34,6 +35,16 @@ class FinPartida : AppCompatActivity() {
         textViewBonf = findViewById(R.id.textViewBonf)
         buttonHome = findViewById(R.id.regresarInicioButton)
 
+        /*
+        if (savedInstanceState  != null)
+        {
+            resultValue = savedInstanceState.getInt("resultValue")
+            resultQuestion = savedInstanceState.getInt("resultQuestion")
+            resultHis = savedInstanceState.getInt("resultHis")
+            resultBonf = savedInstanceState.getInt("resultBonf")
+        }
+        */
+
 
         resultQuestion = intent.getIntExtra("valueQuestion", 0)
         resultHis = intent.getIntExtra("valueBonf", 0)
@@ -51,19 +62,31 @@ class FinPartida : AppCompatActivity() {
     //Adal
     private fun validationImgAndResult(result : Int, resultQuestion : Int, resultHis : Int, resultBonf : Int) {
         if (result in 1..4)
-            imageViewLogo.setImageResource(R.drawable.geography_image)
+            imageViewLogo.setImageResource(R.drawable.perritollorn)
         if (result in 7..9)
-            imageViewLogo.setImageResource(R.drawable.mathematics_image)
+            imageViewLogo.setImageResource(R.drawable.knucles)
         if (result in 12..14)
-            imageViewLogo.setImageResource(R.drawable.img)
+            imageViewLogo.setImageResource(R.drawable.nah_id_win)
         else
-            imageViewLogo.setImageResource(R.drawable.greek_mythology_image)
+            imageViewLogo.setImageResource(R.drawable.mirada100)
 
 
         textViewResultFinal.text = "${result}"
         textViewQuestion.text = "${resultQuestion}"
         textViewHist.text = "${resultHis}"
         textViewBonf.text = "${resultBonf}"
+    }
+
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        Log.d("ProyectoQuizApp", "onSaveInstanceState()....")
+
+        outState.putInt("resultValue", resultValue)
+        outState.putInt("resultQuestion", resultQuestion)
+        outState.putInt("resultHis", resultHis)
+        outState.putInt("resultBonf", resultBonf)
     }
 
 

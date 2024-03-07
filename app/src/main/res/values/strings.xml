@@ -6,4 +6,6 @@
     <string name="bonificacion_por_pista_no_utilizada">Bonificacion por pista no utilizada</string>
     <string name="penalizacion_por_pista">Penalizacion por pista:</string>
     <string name="puntacion_por_pregunta">Puntacion por pregunta:</string>
+    <string name="jugar">JUGAR</string>
+    <string name="opciones">OPCIONES</string>
 </resources>
