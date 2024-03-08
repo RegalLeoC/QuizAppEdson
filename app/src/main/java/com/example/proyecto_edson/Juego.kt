@@ -3,6 +3,7 @@ package com.example.proyecto_edson
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -233,6 +234,35 @@ class Juego : AppCompatActivity() {
     private fun previousQuestion() {
         currentQuestionIndex = (currentQuestionIndex - 1 + questions.size) % questions.size
         updateQuestion()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        Log.d("QuizzApp_Debug", "onSaveInstantState")
+
+        outState.putInt("Cuerrent_Qestion_Index", currentQuestionIndex)
+        outState.putInt("hintCount", hintCount)
+        outState.putInt("consecutiveCorrectAnswers", consecutiveCorrectAnswers)
+        outState.putInt("correctAnswerIndex", correctAnswerIndex)
+
+
+
+
+        private lateinit var topics: Array<Topics>
+        private var currentQuestionIndex: Int = 0
+
+
+        private var questionOptionsMap: MutableMap<Int, List<String>> = mutableMapOf()
+        private var questionAnsweredMap: MutableMap<Int, Boolean> = mutableMapOf()
+        private var userAnswersMap: MutableMap<Int, String?> = mutableMapOf()
+
+        private var hintCount: Int = 5
+        private var consecutiveCorrectAnswers: Int = 0
+
+        private var wrongAnswerIndexes = mutableListOf<Int>()
+        private var correctAnswerIndex = -1
+
     }
 }
 
